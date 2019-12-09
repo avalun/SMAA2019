@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import sklearn
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
@@ -78,7 +77,11 @@ svc.fit(train, train_labels)
 Y_pred = svc.predict(test)
 acc_svc = round(svc.score(train, train_labels) * 100, 2)
 print(acc_svc)
+print('SVM - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, Y_pred))
+print('SVM - Mean Squared Error:', metrics.mean_squared_error(test_labels, Y_pred))
+print('SVM - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
 
+# Random Forest
 regressor = RandomForestRegressor(n_estimators=200, random_state=42)
 regressor.fit(train, train_labels)
 y_pred = regressor.predict(test)
