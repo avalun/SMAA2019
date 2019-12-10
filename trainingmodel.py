@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import SVC, LinearSVC, SVR
 from sklearn.ensemble import RandomForestClassifier
-
 
 dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
 print(dataset.head())
@@ -22,7 +21,8 @@ print(ratings.info())
 # Cleaned, perform those cleaning steps in the second part of this section.
 # Drop extraneous columns
 col = ['adult', 'belongs_to_collection', 'homepage', 'original_language', 'overview', 'popularity', 'poster_path',
-       'runtime', 'spoken_languages', 'status', 'tagline', 'title', 'video', 'production_countries','vote_count']
+       'runtime', 'spoken_languages', 'status', 'tagline', 'title', 'video', 'production_countries', 'vote_count',
+       'revenue', 'budget']
 dataset.drop(col, axis=1, inplace=True)
 print(dataset.info())
 
@@ -31,7 +31,7 @@ dataset.drop_duplicates(inplace=True)
 ratings.drop_duplicates(inplace=True)
 
 # Drop null values from datasets
-col2 = ['budget', 'genres', 'id', 'original_title', 'imdb_id', 'production_companies', 'release_date', 'revenue',
+col2 = ['genres', 'id', 'original_title', 'imdb_id', 'production_companies', 'release_date',
         'vote_average']
 dataset.dropna(subset=col2, how='any', inplace=True)
 
@@ -54,7 +54,7 @@ plt.title('Plot showing  the user rating of the movie “Solace_data”')
 plt.show()
 
 le = preprocessing.LabelEncoder()
-num_features = 9
+num_features = 7
 for i in range(num_features):
     dataset.iloc[:, i] = le.fit_transform(dataset.iloc[:, i])
 
@@ -65,10 +65,9 @@ y = dataset.iloc[0:500, -1].values
 train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=30)
 
 # Svm training
-svc = SVC()
+svc = SVR(kernel="rbf", C=1e3, gamma=1e-8, epsilon=0.1)
 svc.fit(train, train_labels)
 Y_pred = svc.predict(test)
-print(dataset.production_companies)
 acc_svc = round(svc.score(train, train_labels) * 100, 2)
 print(acc_svc)
 
