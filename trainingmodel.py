@@ -1,12 +1,9 @@
-import pandas as pd
-import numpy as np
-import sklearn
 import matplotlib.pyplot as plt
-
+import pandas as pd
 from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC, LinearSVC, SVR
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVR
 
 dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
 print(dataset.head())
@@ -62,7 +59,7 @@ for i in range(num_features):
 
 x = dataset.iloc[0:500, :-1].values
 y = dataset.iloc[0:500, -1].values
-train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=30)
+train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=25)
 
 # Svm training
 svc = SVR(kernel="rbf", C=1e3, gamma=1e-8, epsilon=0.1)
