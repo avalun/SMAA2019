@@ -1,16 +1,17 @@
 import pandas as pd
 import numpy as np
-import sklearn
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC, LinearSVC
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import metrics
 
 dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
 print(dataset.head())
 print(dataset.info())
-# print(dataset.describe())
+print(dataset.describe())
 
 ratings = pd.read_csv("the-movies-dataset/ratings.csv", low_memory=False)
 # print(ratings.head())
@@ -22,7 +23,7 @@ ratings = pd.read_csv("the-movies-dataset/ratings.csv", low_memory=False)
 col = ['adult', 'belongs_to_collection', 'homepage', 'original_language', 'overview', 'popularity', 'poster_path',
        'runtime', 'spoken_languages', 'status', 'tagline', 'title', 'video', 'production_countries']
 dataset.drop(col, axis=1, inplace=True)
-print(dataset.info())
+#print(dataset.info())
 
 # Drop the duplicates
 dataset.drop_duplicates(inplace=True)
@@ -33,14 +34,14 @@ col2 = ['budget', 'genres', 'id', 'original_title', 'imdb_id', 'production_compa
         'vote_average']
 dataset.dropna(subset=col2, how='any', inplace=True)
 
-print(dataset.isnull().sum())
+#print(dataset.isnull().sum())
 
-print(dataset.head(2))
+#print(dataset.head(2))
 
 groupedby_movieName = dataset.groupby('original_title')
 # print movie names
 movies = dataset.groupby('original_title').size().sort_values(ascending=True)[:100]
-print(movies)
+#print(movies)
 
 Solace_data = groupedby_movieName.get_group('Solace')
 print(Solace_data.shape)
@@ -52,7 +53,6 @@ plt.title('Plot showing  the user rating of the movie “Solace_data”')
 plt.show()
 
 # Perform machine learning on first 500 extracted records
-
 first_500 = dataset[500, :]
 first_500.dropna(inplace=True)
 
@@ -66,9 +66,26 @@ labels = first_500[['vote_average']].values
 # Create train and test data set
 train, test, train_labels, test_labels = train_test_split(features, labels, test_size=0.33, random_state=42)
 
+# Feature Scaling
+sc = StandardScaler()
+train = sc.fit_transform(train)
+test = sc.transform(test)
+
 # svm training
 svc = SVC()
 svc.fit(train, train_labels)
 Y_pred = svc.predict(test)
 acc_svc = round(svc.score(train, train_labels) * 100, 2)
-acc_svc
+print(acc_svc)
+print('SVM - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, Y_pred))
+print('SVM - Mean Squared Error:', metrics.mean_squared_error(test_labels, Y_pred))
+print('SVM - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
+
+# Random Forest
+regressor = RandomForestRegressor(n_estimators=200, random_state=42)
+regressor.fit(train, train_labels)
+y_pred = regressor.predict(test)
+
+print('Random Forest - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, y_pred))
+print('Random Forest - Mean Squared Error:', metrics.mean_squared_error(test_labels, y_pred))
+print('Random Forest - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
