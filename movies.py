@@ -1,5 +1,6 @@
 import pickle
 
+import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,6 +20,9 @@ def prepare_dataset():
     ratings = pd.read_csv("the-movies-dataset/ratings.csv", low_memory=False)
     # print(ratings.head())
     # print(ratings.info())
+    plt.figure(figsize=(18,8))
+    sns.barplot(x='original_title', y='vote_average', data=dataset.head(10))
+    plt.show()
 
     # After discussing the structure of the data and any problems that need to be
     # Cleaned, perform those cleaning steps in the second part of this section.
@@ -73,12 +77,17 @@ def load(filename='dump.p'):
 
 def svm(train, test, train_labels, test_labels):
     # Svm training
-    svc = GridSearchCV(SVR(kernel='rbf', gamma=[1e-8, 1e-7, 100]), cv=5,
-                       param_grid={"C": [1e0, 1e1, 1e2, 1e3],
-                                   "gamma": np.logspace(-2, 2, 5)})
+    parameters = {
+        "kernel": ["rbf"],
+        "C": [1,10,10,100,1000],
+        "gamma": [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1]
+    }
 
-    svc.fit(train, train_labels)
-    y_pred = svc.predict(test)
+    grid = GridSearchCV(SVR(), parameters, cv=5, verbose=2)
+    grid.fit(train, train_labels)
+
+    #svc.fit(train, train_labels)
+    y_pred = grid.predict(test)
     print(y_pred)
     print(test_labels)
     print('SVR - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, y_pred))
@@ -105,9 +114,9 @@ def main():
     prepare_dataset()
     # dump(dataset)
     dataset = load()
-    x = dataset.iloc[0:1000, :-1].values
-    y = dataset.iloc[0:1000, -1].values
-    train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=25)
+    x = dataset.iloc[0:3000, :-1].values
+    y = dataset.iloc[0:3000, -1].values
+    train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=42)
     svm(train, test, train_labels, test_labels)
 
     # Random Forests with different numbers of estimators
