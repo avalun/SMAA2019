@@ -111,7 +111,7 @@ def random_forest(train, test, train_labels, test_labels, n_estimators=2000):
 
 def main():
     # Create train and test data set
-    prepare_dataset()
+    #prepare_dataset()
     # dump(dataset)
     dataset = load()
     x = dataset.iloc[0:3000, :-1].values
