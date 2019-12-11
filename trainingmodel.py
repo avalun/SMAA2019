@@ -1,11 +1,23 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+<<<<<<< HEAD
 import numpy as np
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestRegressor
+=======
+from sklearn import preprocessing, metrics
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, mean_squared_error
+>>>>>>> 7c5a565adde6927abb7ce5eac20f3f931ed37ab6
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVR
+<<<<<<< HEAD
 from sklearn import metrics
+=======
+from sklearn import preprocessing
+>>>>>>> 7c5a565adde6927abb7ce5eac20f3f931ed37ab6
 
 dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
 print(dataset.head())
@@ -19,7 +31,7 @@ print(ratings.info())
 # Drop columns that don't contain useful or not enough data
 col = ['adult', 'belongs_to_collection', 'homepage', 'original_language', 'overview', 'popularity', 'poster_path',
        'runtime', 'spoken_languages', 'status', 'tagline', 'title', 'video', 'production_countries', 'vote_count',
-       'revenue', 'budget']
+       'revenue', 'budget', 'id', 'imdb_id']
 dataset.drop(col, axis=1, inplace=True)
 print(dataset.info())
 
@@ -28,7 +40,7 @@ dataset.drop_duplicates(inplace=True)
 ratings.drop_duplicates(inplace=True)
 
 # Drop null values from datasets
-col2 = ['genres', 'id', 'original_title', 'imdb_id', 'production_companies', 'release_date',
+col2 = ['genres', 'original_title', 'production_companies', 'release_date',
         'vote_average']
 dataset.dropna(subset=col2, how='any', inplace=True)
 
@@ -52,7 +64,7 @@ dataset.dropna(subset=col2, how='any', inplace=True)
 # plt.show()
 
 le = preprocessing.LabelEncoder()
-num_features = 7
+num_features = 5
 for i in range(num_features):
     dataset.iloc[:, i] = le.fit_transform(dataset.iloc[:, i])
 
@@ -75,6 +87,15 @@ print("SVM - Accuracy", acc_svc)
 print('SVM - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, Y_pred))
 print('SVM - Mean Squared Error:', metrics.mean_squared_error(test_labels, Y_pred))
 print('SVM - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
+
+# Your code from merge conflict is here
+print(acc_svc)
+print(accuracy_score)
+print(Y_pred)
+
+print(confusion_matrix(test,test_labels))
+print(classification_report(test,test_labels))
+print(accuracy_score(test, test_labels))
 
 # Random Forest 200 estimators
 regressor = RandomForestRegressor(n_estimators=200, random_state=42)
@@ -119,3 +140,6 @@ print("Random Forest 2000 Estimators - Accuracy", acc_random_forest)
 print('Random Forest 2000 Estimators - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, Y_pred))
 print('Random Forest 2000 Estimators - Mean Squared Error:', metrics.mean_squared_error(test_labels, Y_pred))
 print('Random Forest 2000 Estimators - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
+
+
+
