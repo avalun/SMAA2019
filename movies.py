@@ -2,8 +2,9 @@ import pickle
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn import preprocessing
-from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+from sklearn import preprocessing, metrics
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 
@@ -32,7 +33,7 @@ def prepare_dataset():
     ratings.drop_duplicates(inplace=True)
 
     # Drop null values from datasets
-    col2 = ['genres','original_title','production_companies', 'release_date',
+    col2 = ['genres', 'original_title', 'production_companies', 'release_date',
             'vote_average']
     dataset.dropna(subset=col2, how='any', inplace=True)
 
@@ -72,22 +73,28 @@ def load(filename='dump.p'):
 def svm(train, test, train_labels, test_labels):
     # Svm training
     svc = SVR(kernel="rbf", C=1e3, gamma=1e-8, epsilon=0.1)
-    #svc = SVR(kernel="rbf", C=10000, gamma=1e-8, epsilon=0.1)
+    # svc = SVR(kernel="rbf", C=10000, gamma=1e-8, epsilon=0.1)
 
     svc.fit(train, train_labels)
     Y_pred = svc.predict(test)
     print(Y_pred)
     print(test_labels)
 
-#
-def random_forest(train, test, train_labels, test_labels):
-#     # Random Forest
-    random_forest = RandomForestClassifier(n_estimators=100)
-    random_forest.fit(train, train_labels)
-    Y_pred = random_forest.predict(test)
-    random_forest.score(train, train_labels)
-    acc_random_forest = round(random_forest.score(train, train_labels) * 100, 2)
-    print(acc_random_forest)
+
+# Random forest training
+def random_forest(train, test, train_labels, test_labels, n_estimators=1000):
+    regressor = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
+    regressor.fit(train, train_labels)
+    y_pred = regressor.predict(test)
+    regressor.score(train, train_labels)
+    acc_random_forest = round(regressor.score(train, train_labels) * 100, 2)
+    print("Random Forest ", n_estimators, " Estimators - Accuracy", acc_random_forest)
+    print("Random Forest ", n_estimators, " Estimators- Mean Absolute Error:",
+          metrics.mean_absolute_error(test_labels, y_pred))
+    print("Random Forest ", n_estimators, " Estimators - Mean Squared Error:",
+          metrics.mean_squared_error(test_labels, y_pred))
+    print("Random Forest ", n_estimators, " Estimators - Root Mean Squared Error:",
+          np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
 
 
 def main():
@@ -99,6 +106,14 @@ def main():
     y = dataset.iloc[0:500, -1].values
     train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=25)
     svm(train, test, train_labels, test_labels)
+
+    # Random Forests with different numbers of estimators
+    # Larger number of n_estimators become useful for bigger datasets
+    # so enable the lower lines for the final testing!
+    random_forest(train, test, train_labels, test_labels, 500)
+    # random_forest(train, test, train_labels, test_labels, 1000)
+    # andom_forest(train, test, train_labels, test_labels, 2000)
+    # random_forest(train, test, train_labels, test_labels, 4000)
 
 
 if __name__ == '__main__':

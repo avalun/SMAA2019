@@ -1,23 +1,12 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-<<<<<<< HEAD
 import numpy as np
-from sklearn import preprocessing
-from sklearn.ensemble import RandomForestRegressor
-=======
 from sklearn import preprocessing, metrics
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, mean_squared_error
->>>>>>> 7c5a565adde6927abb7ce5eac20f3f931ed37ab6
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVR
-<<<<<<< HEAD
-from sklearn import metrics
-=======
-from sklearn import preprocessing
->>>>>>> 7c5a565adde6927abb7ce5eac20f3f931ed37ab6
+
 
 dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
 print(dataset.head())
