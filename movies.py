@@ -81,19 +81,18 @@ def svm(train, test, train_labels, test_labels):
     print(test_labels)
 
 
-# Random forest training
 def random_forest(train, test, train_labels, test_labels, n_estimators=1000):
     regressor = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
     regressor.fit(train, train_labels)
     y_pred = regressor.predict(test)
     regressor.score(train, train_labels)
     acc_random_forest = round(regressor.score(train, train_labels) * 100, 2)
-    print("Random Forest ", n_estimators, " Estimators - Accuracy", acc_random_forest)
-    print("Random Forest ", n_estimators, " Estimators- Mean Absolute Error:",
+    print("Random Forest", n_estimators, "Estimators - Accuracy", acc_random_forest)
+    print("Random Forest", n_estimators, "Estimators - Mean Absolute Error:",
           metrics.mean_absolute_error(test_labels, y_pred))
-    print("Random Forest ", n_estimators, " Estimators - Mean Squared Error:",
+    print("Random Forest", n_estimators, "Estimators - Mean Squared Error:",
           metrics.mean_squared_error(test_labels, y_pred))
-    print("Random Forest ", n_estimators, " Estimators - Root Mean Squared Error:",
+    print("Random Forest", n_estimators, "Estimators - Root Mean Squared Error:",
           np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
 
 
