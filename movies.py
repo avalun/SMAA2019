@@ -84,11 +84,10 @@ def svm(train, test, train_labels, test_labels):
     print('SVR - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
 
 
-def random_forest(train, test, train_labels, test_labels, n_estimators=1000):
+def random_forest(train, test, train_labels, test_labels, n_estimators=2000):
     regressor = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
     regressor.fit(train, train_labels)
     y_pred = regressor.predict(test)
-    regressor.score(train, train_labels)
     acc_random_forest = round(regressor.score(train, train_labels) * 100, 2)
     print("Random Forest", n_estimators, "Estimators - Accuracy", acc_random_forest)
     print("Random Forest", n_estimators, "Estimators - Mean Absolute Error:",
@@ -112,10 +111,9 @@ def main():
     # Random Forests with different numbers of estimators
     # Larger number of n_estimators become useful for bigger datasets
     # so enable the lower lines for the final testing!
-    random_forest(train, test, train_labels, test_labels, 500)
-    # random_forest(train, test, train_labels, test_labels, 1000)
-    # andom_forest(train, test, train_labels, test_labels, 2000)
+    random_forest(train, test, train_labels, test_labels)
     # random_forest(train, test, train_labels, test_labels, 4000)
+    # random_forest(train, test, train_labels, test_labels, 8000)
 
 
 if __name__ == '__main__':
