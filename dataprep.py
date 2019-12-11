@@ -1,47 +1,55 @@
-import numpy as np
 import pandas as pd
+from sklearn import preprocessing
 
-# Importing the dataset
-dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
-dataset.head()
 
-keywords = pd.read_csv("the-movies-dataset/keywords.csv", low_memory=False)
-keywords.head()
+def prepare_dataset(plt=None):
+    dataset = pd.read_csv('the-movies-dataset/movies_metadata.csv', low_memory=False)
+    print(dataset.head())
+    print(dataset.info())
+    print(dataset.describe())
 
-ratings = pd.read_csv("the-movies-dataset/ratings.csv", low_memory=False)
-ratings.head()
+    ratings = pd.read_csv("the-movies-dataset/ratings.csv", low_memory=False)
+    print(ratings.head())
+    print(ratings.info())
 
-dataset['budget'] = dataset['budget'].replace(0, dataset['budget'].mean())
+    # After discussing the structure of the data and any problems that need to be
+    # Cleaned, perform those cleaning steps in the second part of this section.
+    # Drop extraneous columns
+    col = ['adult', 'belongs_to_collection', 'homepage', 'original_language', 'overview', 'popularity', 'poster_path',
+           'runtime', 'spoken_languages', 'status', 'tagline', 'title', 'video', 'production_countries', 'vote_count',
+           'revenue', 'budget', 'id', 'imdb_id']
+    dataset.drop(col, axis=1, inplace=True)
+    print(dataset.info())
 
-X = dataset.iloc[:, :].values
-y_revenue = dataset.iloc[:, 12].values
-y_rating = dataset.iloc[:, 18].values
+    # Drop the duplicates
+    dataset.drop_duplicates(inplace=True)
+    ratings.drop_duplicates(inplace=True)
 
-# picking independent variables
-X = X[:, [0, 1, 4, 9, 11, 13, 14, 15, 22, 23]]
+    # Drop null values from datasets
+    col2 = ['genres', 'original_title', 'production_companies', 'release_date',
+            'vote_average']
+    dataset.dropna(subset=col2, how='any', inplace=True)
 
-# Removing zero REVENUES from the data
-y_revenue_removed = []
-y_rating_removed = []
-X_removed = []
-for l in range(0, len(y_revenue)):
-    if y_revenue[l] != 0:
-        y_revenue_removed.append(y_revenue[l])
-        y_rating_removed.append(y_rating[l])
-        X_removed.append(X[l])
-y_revenue = np.array(y_revenue_removed)
-y_rating = np.array(y_rating_removed)
-X = np.array(X_removed)
+    print(dataset.isnull().sum())
 
-# Adjusting inflation to 2019 at average inflation - 3.22% do this only if using revenue (12 y index)
-avg_inflation = 1.01322
-year_now = 2019
-for l in range(0, len(y_revenue)):
-    try:
-        film_year = int(X[l, 4][0:4])
-        y_revenue[l] = y_revenue[l] * (avg_inflation ** (year_now - film_year))
-        X[l, 7] = int(film_year)
-    except:
-        X[l, 4] = 0
+    print(dataset.head(2))
 
-dataset = pd.DataFrame(X)
+    groupedby_moviename = dataset.groupby('original_title')
+    # print movie names
+    movies = dataset.groupby('original_title').size().sort_values(ascending=True)[:100]
+    print(movies)
+
+    solace_data = groupedby_moviename.get_group('Solace')
+    print(solace_data.shape)
+
+    # Find and visualize the user votes of the movie “Solace”
+    plt.figure(figsize=(10, 10))
+    plt.scatter(solace_data['original_title'], solace_data['vote_average'])
+    plt.title('Plot showing the user rating of the movie “Solace_data”')
+    plt.show()
+
+    le = preprocessing.LabelEncoder()
+    num_features = 4
+    for i in range(num_features):
+        dataset.iloc[:, i] = le.fit_transform(dataset.iloc[:, i])
+    return dataset

@@ -79,6 +79,9 @@ def svm(train, test, train_labels, test_labels):
     Y_pred = svc.predict(test)
     print(Y_pred)
     print(test_labels)
+    print('SVR - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, Y_pred))
+    print('SVR - Mean Squared Error:', metrics.mean_squared_error(test_labels, Y_pred))
+    print('SVR - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
 
 
 def random_forest(train, test, train_labels, test_labels, n_estimators=1000):
@@ -98,7 +101,7 @@ def random_forest(train, test, train_labels, test_labels, n_estimators=1000):
 
 def main():
     # Create train and test data set
-    # dataset = prepare_dataset()
+    prepare_dataset()
     # dump(dataset)
     dataset = load()
     x = dataset.iloc[0:500, :-1].values
