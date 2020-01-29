@@ -9,6 +9,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
+from sklearn.metrics import r2_score
 
 
 def prepare_dataset():
@@ -24,8 +25,6 @@ def prepare_dataset():
     sns.barplot(x='original_title', y='vote_average', data=dataset.head(10))
     plt.show()
 
-    # After discussing the structure of the data and any problems that need to be
-    # Cleaned, perform those cleaning steps in the second part of this section.
     # Drop extraneous columns
     col = ['adult', 'belongs_to_collection', 'homepage', 'original_language', 'overview', 'popularity', 'poster_path',
            'runtime', 'spoken_languages', 'status', 'tagline', 'title', 'video', 'production_countries', 'vote_count',
@@ -42,17 +41,17 @@ def prepare_dataset():
             'vote_average']
     dataset.dropna(subset=col2, how='any', inplace=True)
 
-    print(dataset.isnull().sum())
+    #print(dataset.isnull().sum())
 
-    print(dataset.head(2))
+    #print(dataset.head(2))
 
     groupedby_movieName = dataset.groupby('original_title')
     # print movie names
     movies = dataset.groupby('original_title').size().sort_values(ascending=True)[:100]
-    print(movies)
+    #print(movies)
 
     solace_data = groupedby_movieName.get_group('Solace')
-    print(solace_data.shape)
+    #print(solace_data.shape)
 
     # Find and visualize the user votes of the movie “Solace”
     plt.figure(figsize=(10, 10))
@@ -88,36 +87,41 @@ def svm(train, test, train_labels, test_labels):
 
     #svc.fit(train, train_labels)
     y_pred = grid.predict(test)
-    print(y_pred)
-    print(test_labels)
+    r2 = r2_score(test_labels, y_pred)
+    #print(y_pred)
+    #print(test_labels)
     print('SVR - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, y_pred))
     print('SVR - Mean Squared Error:', metrics.mean_squared_error(test_labels, y_pred))
     print('SVR - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
+    print('SVR - R2 metric:', r2)
 
 
 def random_forest(train, test, train_labels, test_labels, n_estimators=2000):
     regressor = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
     regressor.fit(train, train_labels)
     y_pred = regressor.predict(test)
-    acc_random_forest = round(regressor.score(train, train_labels) * 100, 2)
-    print("Random Forest", n_estimators, "Estimators - Accuracy", acc_random_forest)
+
+    r2 = r2_score(test_labels, y_pred)
     print("Random Forest", n_estimators, "Estimators - Mean Absolute Error:",
           metrics.mean_absolute_error(test_labels, y_pred))
     print("Random Forest", n_estimators, "Estimators - Mean Squared Error:",
           metrics.mean_squared_error(test_labels, y_pred))
     print("Random Forest", n_estimators, "Estimators - Root Mean Squared Error:",
           np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
+    print('Random Forest - R2 metric:', r2)
 
 
 def main():
     # Create train and test data set
-    #prepare_dataset()
+    # dataset = prepare_dataset()
     # dump(dataset)
     dataset = load()
+    print(dataset.head())
     x = dataset.iloc[0:3000, :-1].values
     y = dataset.iloc[0:3000, -1].values
     train, test, train_labels, test_labels = train_test_split(x, y, test_size=0.33, random_state=42)
     svm(train, test, train_labels, test_labels)
+    print(test_labels)
 
     # Random Forests with different numbers of estimators
     # Larger number of n_estimators become useful for bigger datasets
