@@ -129,6 +129,3 @@ print("Random Forest 2000 Estimators - Accuracy", acc_random_forest)
 print('Random Forest 2000 Estimators - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, Y_pred))
 print('Random Forest 2000 Estimators - Mean Squared Error:', metrics.mean_squared_error(test_labels, Y_pred))
 print('Random Forest 2000 Estimators - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, Y_pred)))
-
-
-

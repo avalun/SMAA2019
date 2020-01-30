@@ -1,13 +1,13 @@
 import pickle
+from pprint import pprint
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing, metrics
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score, make_scorer
+from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 
 
@@ -65,63 +65,97 @@ def prepare_dataset():
     return dataset
 
 
-def dump(data, filename='dump.p'):
+def dump(data, filename):
     pickle.dump(data, open(filename, 'wb'))
 
 
-def load(filename='dump.p'):
+def load(filename):
     return pickle.load(open(filename, 'rb'))
 
 
-def svm(train, test, train_labels, test_labels):
-    # Svm training
+def load_dataset():
+    return load('dataset.p')
+
+
+def load_svr():
+    return load('grid.p')
+
+
+def load_random_forest():
+    return load('random_forest.p')
+
+
+def grid_search_svr(train, train_labels):
     parameters = {
         "kernel": ["rbf"],
         "C": [10, 100, 1000],
         "gamma": [1e-3, 1e-2, 1e-1]
     }
 
-    grid = GridSearchCV(SVR(), parameters, verbose=2, n_jobs=-1, scoring=make_scorer(r2_score), cv=2)
+    grid = GridSearchCV(SVR(), parameters, verbose=2, n_jobs=-1, cv=2)
     grid.fit(train, train_labels)
     dump(grid, "grid.p")
+    pprint(grid.cv_results_)
+    return grid
 
-    # svc.fit(train, train_labels)
-    y_pred = grid.predict(test)
-    r2 = r2_score(test_labels, y_pred)
-    # print(y_pred)
-    # print(test_labels)
+
+def train_svr(train, train_labels, C=100, gamma=0.01):
+    svr = SVR(C=C, gamma=gamma)
+    svr.fit(train, train_labels)
+    return svr
+
+
+def test_svr(model: SVR, test, test_labels):
+    y_pred = model.predict(test)
+    print('\nC: ' + str(model.C) + ', Gamma: ' + str(model.gamma))
     print('SVR - Mean Absolute Error:', metrics.mean_absolute_error(test_labels, y_pred))
     print('SVR - Mean Squared Error:', metrics.mean_squared_error(test_labels, y_pred))
     print('SVR - Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
-    print('SVR - R2 metric:', r2)
+    print('SVR - R2 metric:', r2_score(test_labels, y_pred))
 
 
-def random_forest(train, test, train_labels, test_labels, n_estimators=2000):
-    regressor = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
-    regressor.fit(train, train_labels)
+def grid_search_random_forest(train, train_labels):
+    parameters = {
+        "n_estimators": [2000, 4000, 8000]
+    }
+
+    grid = GridSearchCV(RandomForestRegressor(), parameters, verbose=2, n_jobs=-1, cv=2)
+    grid.fit(train, train_labels)
+    dump(grid, "regressor.p")
+    pprint(grid.cv_results_)
+    return grid
+
+
+def test_random_forest(regressor: RandomForestRegressor, test, test_labels):
     y_pred = regressor.predict(test)
-
-    r2 = r2_score(test_labels, y_pred)
-    print("Random Forest", n_estimators, "Estimators - Mean Absolute Error:",
+    print("Random Forest", "Estimators - Mean Absolute Error:",
           metrics.mean_absolute_error(test_labels, y_pred))
-    print("Random Forest", n_estimators, "Estimators - Mean Squared Error:",
+    print("Random Forest", "Estimators - Mean Squared Error:",
           metrics.mean_squared_error(test_labels, y_pred))
-    print("Random Forest", n_estimators, "Estimators - Root Mean Squared Error:",
+    print("Random Forest", "Estimators - Root Mean Squared Error:",
           np.sqrt(metrics.mean_squared_error(test_labels, y_pred)))
-    print('Random Forest - R2 metric:', r2)
+    print('Random Forest - R2 metric:', r2_score(test_labels, y_pred))
 
 
 def main():
-    # Create train and test data set
-    train, test, train_labels, test_labels = load('dataset.p')
-    svm(train, test, train_labels, test_labels)
+    train, test, train_labels, test_labels = load_dataset()
 
-    # Random Forests with different numbers of estimators
-    # Larger number of n_estimators become useful for bigger datasets
-    # so enable the lower lines for the final testing!
-    # random_forest(train, test, train_labels, test_labels)
-    # random_forest(train, test, train_labels, test_labels, 4000)
-    # random_forest(train, test, train_labels, test_labels, 8000)
+    # svr = grid_search_svr(train, train_labels)
+    # svr: GridSearchCV = load_svr()
+    # test_svr(svr.best_estimator_, test, test_labels)
+
+    # random_forest = grid_search_random_forest(train, train_labels)
+    # random_forest: GridSearchCV = load_random_forest()
+    # test_random_forest(random_forest.best_estimator_, test, test_labels)
+
+    test_svr(train_svr(train, train_labels, gamma=0.01), test, test_labels)
+    test_svr(train_svr(train, train_labels, gamma=0.1), test, test_labels)
+    test_svr(train_svr(train, train_labels, gamma=1), test, test_labels)
+    test_svr(train_svr(train, train_labels, gamma=10), test, test_labels)
+    test_svr(train_svr(train, train_labels, C=1000, gamma=0.01), test, test_labels)
+    test_svr(train_svr(train, train_labels, C=1000, gamma=0.1), test, test_labels)
+    test_svr(train_svr(train, train_labels, C=1000, gamma=1), test, test_labels)
+    test_svr(train_svr(train, train_labels, C=1000, gamma=10), test, test_labels)
 
 
 if __name__ == '__main__':
